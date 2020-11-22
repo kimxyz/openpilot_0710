@@ -189,6 +189,8 @@ class CarInterface(CarInterfaceBase):
                           CAR.KIA_CADENZA_HEV, CAR.GRANDEUR_HEV, CAR.KIA_NIRO_HEV, CAR.KONA_HEV]):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity
 
+    if ret.radarOffCan or (ret.sccBus == 2) or True:
+      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
     if ret.mdpsHarness:
       ret.minSteerSpeed = 0.
 
@@ -212,7 +214,7 @@ class CarInterface(CarInterfaceBase):
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
-      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity # todo based on toggle
+      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
       ret.sccBus = -1
       ret.enableCruise = False
       ret.radarOffCan = True
