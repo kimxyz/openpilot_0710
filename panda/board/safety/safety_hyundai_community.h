@@ -97,6 +97,7 @@ static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   bool valid;
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
+  bool hyundai_community_mdps_harness_present = true;
 
   if ((bus == 0) && (addr == 593 || addr == 897)) {
     hyundai_community_mdps_harness_present = false;
@@ -293,6 +294,7 @@ static int hyundai_community_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
 static int hyundai_community_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
+  bool hyundai_community_mdps_harness_present = true;
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);
   // forward cam to ccan and viceversa, except lkas cmd
