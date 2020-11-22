@@ -81,7 +81,7 @@ class LongControl():
     self.pid.reset()
     self.v_pid = v_pid
 
-  def update(self, active, CS, v_target, v_target_future, a_target, CP, extras, radarState):
+  def update(self, active, CS, v_target, v_target_future, a_target, CP, extras):
     """Update longitudinal control. This updates the state machine and runs a PID loop"""
     # Actuation limits
     gas_max = interp(CS.vEgo, CP.gasMaxBP, CP.gasMaxV)
@@ -92,14 +92,7 @@ class LongControl():
 
     # Update state machine
     output_gb = self.last_output_gb
-    if radarState is None:
-      dRel = 200
-    else:
-      dRel = radarState.leadOne.dRel
-    if hasLead:
-      stop = True if (dRel < 4.0 and radarState.leadOne.status) else False
-    else:
-      stop = False
+
     self.long_control_state = long_control_state_trans(active, self.long_control_state, CS.vEgo,
                                                        v_target_future, self.v_pid, output_gb,
                                                        CS.brakePressed, CS.cruiseState.standstill, stop)
