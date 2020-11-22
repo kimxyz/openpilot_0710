@@ -530,11 +530,11 @@ static void ui_draw_ls_button(UIState *s) {
   nvgStroke(s->vg);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-  nvgFontSize(s->vg, 80);
+  nvgFontSize(s->vg, 80*0.8);
   nvgText(s->vg, btn_x - 38, btn_y + 30, "LS", NULL);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-  nvgFontSize(s->vg, 45);
+  nvgFontSize(s->vg, 45*0.8);
   nvgText(s->vg, btn_x - 34, btn_y + 50 + 15, "mode", NULL);
 }
 
@@ -554,11 +554,11 @@ static void ui_draw_df_button(UIState *s) {
   nvgStroke(s->vg);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-  nvgFontSize(s->vg, 80);
+  nvgFontSize(s->vg, 80*0.8);
   nvgText(s->vg, btn_x - 38, btn_y + 30, "DF", NULL);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-  nvgFontSize(s->vg, 45);
+  nvgFontSize(s->vg, 45*0.8);
   nvgText(s->vg, btn_x - 34, btn_y + 50 + 15, "profile", NULL);
 }
 
@@ -586,7 +586,7 @@ static void ui_draw_ml_button(UIState *s) {
   nvgFill(s->vg);
 
   nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
-  nvgFontSize(s->vg, 65);
+  nvgFontSize(s->vg, 65*0.8);
   nvgText(s->vg, x, y + btn_h / 8, "Toggle Model Long", NULL);
 }
 
