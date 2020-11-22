@@ -82,7 +82,7 @@ class CarController():
     self.usestockscc = True
     self.lead_visible = False
     self.lead_debounce = 0
-    self.gapsettingdance = 2
+    self.gapsettingdance = 4
     self.gapcount = 0
     self.current_veh_speed = 0
     self.lfainFingerprint = CP.lfaAvailable
@@ -132,23 +132,6 @@ class CarController():
 
     if CS.CP.radarOffCan:
       self.usestockscc = not self.cp_oplongcontrol
-    elif (CS.cancel_button_count == 3) and self.cp_oplongcontrol:
-      self.usestockscc = not self.usestockscc
-
-    if not self.usestockscc:
-      self.gapcount += 1
-      if self.gapcount == 50 and self.gapsettingdance == 2:
-        self.gapsettingdance = 1
-        self.gapcount = 0
-      elif self.gapcount == 50 and self.gapsettingdance == 1:
-        self.gapsettingdance = 4
-        self.gapcount = 0
-      elif self.gapcount == 50 and self.gapsettingdance == 4:
-        self.gapsettingdance = 3
-        self.gapcount = 0
-      elif self.gapcount == 50 and self.gapsettingdance == 3:
-        self.gapsettingdance = 2
-        self.gapcount = 0
 
     self.apply_steer_last = apply_steer
 
@@ -160,7 +143,7 @@ class CarController():
 
     self.clu11_speed = CS.clu11["CF_Clu_Vanz"]
 
-    enabled_speed = 38 if CS.is_set_speed_in_mph else 60
+    enabled_speed = 38 if CS.is_set_speed_in_mph else 55
 
     if self.clu11_speed > enabled_speed or not lkas_active or CS.out.gearShifter != GearShifter.drive:
       enabled_speed = self.clu11_speed
@@ -192,7 +175,7 @@ class CarController():
       can_sends.append(create_clu11(self.packer, CS.CP.sccBus, CS.clu11, Buttons.CANCEL, self.current_veh_speed, self.clu11_cnt))
     elif CS.out.cruiseState.standstill and CS.scc12["ACCMode"] != 0 and CS.vrelative > 0:
       self.vdiff += (CS.vrelative - self.vdiff)
-      if (frame - self.lastresumeframe > 10) and (self.vdiff > .5 or CS.lead_distance > 6.):
+      if (frame - self.lastresumeframe > 5) and (self.vdiff > .1 or CS.lead_distance > 5.):
         can_sends.append(create_clu11(self.packer, CS.CP.sccBus, CS.clu11, Buttons.RES_ACCEL, self.current_veh_speed, self.resumebuttoncnt))
         self.resumebuttoncnt += 1
         if self.resumebuttoncnt > 5:

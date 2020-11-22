@@ -27,10 +27,10 @@ class CarInterface(CarInterfaceBase):
     ret = CarInterfaceBase.get_std_params(candidate, fingerprint, has_relay)
 
     ret.carName = "hyundai"
-    ret.safetyModel = car.CarParams.SafetyModel.hyundai
+    ret.safetyModel = car.CarParams.SafetyModel.hyundaiLegacy
 
     # Most Hyundai car ports are community features for now
-    ret.communityFeature = candidate not in [CAR.SONATA, CAR.PALISADE]
+    ret.communityFeature = False
 
     ret.steerActuatorDelay = 0.3  # Default delay not used, check pathplanner for BPs
     ret.steerRateCost = 0.5
@@ -57,13 +57,6 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.pid.kiV = [0.001, 0.0015, 0.002]
     ret.lateralTuning.pid.kfBP = [0., 10., 30.]
     ret.lateralTuning.pid.kfV = [0.000015, 0.00002, 0.000025]
-
-    if opParams().get('Enable_INDI'):
-      ret.lateralTuning.init('indi')
-      ret.lateralTuning.indi.outerLoopGain = 3.  # stock is 2.0.  Trying out 2.5
-      ret.lateralTuning.indi.innerLoopGain = 2.
-      ret.lateralTuning.indi.timeConstant = 1.4
-      ret.lateralTuning.indi.actuatorEffectiveness = 2.
 
     if candidate in [CAR.SANTA_FE, CAR.SANTA_FE_2017]:
       ret.mass = 3982. * CV.LB_TO_KG + STD_CARGO_KG
@@ -169,7 +162,7 @@ class CarInterface(CarInterfaceBase):
 
     # these cars require a special panda safety mode due to missing counters and checksums in the messages
 
-    ret.mdpsHarness = opParams().get('MdpsHarnessEnabled') == b'1'
+    ret.mdpsHarness = True
     ret.sasBus = 0 if (688 in fingerprint[0] or not ret.mdpsHarness) else 1
     ret.fcaBus = 0 if 909 in fingerprint[0] else 2 if 909 in fingerprint[2] else -1
     ret.bsmAvailable = True if 1419 in fingerprint[0] else False
@@ -178,15 +171,15 @@ class CarInterface(CarInterfaceBase):
     ret.evgearAvailable = True if 882 in fingerprint[0] else False
     ret.emsAvailable = True if 608 and 809 in fingerprint[0] else False
 
-    if opParams().get('SccEnabled') == b'1':
-      ret.sccBus = 2 if 1057 in fingerprint[2] and opParams().get('SccHarnessPresent') == b'1' else 0 if 1057 in fingerprint[0] else -1
+    if True:
+      ret.sccBus = 2 if 1057 in fingerprint[2] and False else 0 if 1057 in fingerprint[0] else -1
     else:
       ret.sccBus = -1
 
     ret.radarOffCan = (ret.sccBus == -1)
     #ret.radarTimeStep = 0.1
 
-    ret.openpilotLongitudinalControl = opParams().get('LongControlEnabled') == b'1' and not (ret.sccBus == 0)
+    ret.openpilotLongitudinalControl = True and not (ret.sccBus == 0)
 
     if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_NIRO_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
@@ -197,9 +190,6 @@ class CarInterface(CarInterfaceBase):
             (candidate in [CAR.KIA_OPTIMA_HEV, CAR.SONATA_HEV, CAR.IONIQ_HEV, CAR.SONATA_HEV_2019,
                           CAR.KIA_CADENZA_HEV, CAR.GRANDEUR_HEV, CAR.KIA_NIRO_HEV, CAR.KONA_HEV]):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity
-
-    if ret.radarOffCan or (ret.sccBus == 2) or opParams().get('EnableOPwithCC') == b'0':
-      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
 
     if ret.mdpsHarness:
       ret.minSteerSpeed = 0.
@@ -216,15 +206,15 @@ class CarInterface(CarInterfaceBase):
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) \
-                       or has_relay or opParams().get('forceenablecamera')
+                       or has_relay
 
-    ret.radarDisablePossible = opParams().get('RadarDisableEnabled') == b'1'
+    ret.radarDisablePossible = True
 
-    ret.enableCruise = opParams().get('EnableOPwithCC') == b'1' and ret.sccBus == 0
+    ret.enableCruise = False and ret.sccBus == 0
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
-      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
+      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity # todo based on toggle
       ret.sccBus = -1
       ret.enableCruise = False
       ret.radarOffCan = True
@@ -237,28 +227,17 @@ class CarInterface(CarInterfaceBase):
     self.cp.update_strings(can_strings)
     self.cp2.update_strings(can_strings)
     self.cp_cam.update_strings(can_strings)
-    ret_arne182 = arne182.CarStateArne182.new_message()
     ret = self.CS.update(self.cp, self.cp2, self.cp_cam)
     ret.canValid = self.cp.can_valid and self.cp2.can_valid and self.cp_cam.can_valid
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
-    events, events_arne182 = self.create_common_events(ret)
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
-    if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10. and self.CC.enabled:
-      if not self.low_speed_alert and self.belowspeeddingtimer < 100:
-        events.add(car.CarEvent.EventName.belowSteerSpeedDing)
-        self.belowspeeddingtimer +=1
-      else:
-        self.belowspeeddingtimer = 0.
-        self.low_speed_alert = True
     if ret.vEgo > (self.CP.minSteerSpeed + .84) or not self.CC.enabled:
       self.low_speed_alert = False
       self.belowspeeddingtimer = 0.
-    if self.low_speed_alert:
-      events.add(car.CarEvent.EventName.belowSteerSpeed)
 
     if self.CP.sccBus == 2:
       self.CP.enableCruise = self.CC.usestockscc
@@ -269,9 +248,6 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.parkBrake)
     if self.CS.brakeUnavailable and not self.CC.usestockscc:
       events.add(EventName.brakeUnavailable)
-    if not self.visiononlyWarning and self.CP.radarDisablePossible and self.CC.enabled and not self.low_speed_alert:
-      events.add(EventName.visiononlyWarning)
-      self.visiononlyWarning = True
 
     buttonEvents = []
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
@@ -319,11 +295,8 @@ class CarInterface(CarInterfaceBase):
           events.add(EventName.pcmDisable)
 
     ret.events = events.to_msg()
-
-    ret_arne182.events = events_arne182.to_msg()
-
     self.CS.out = ret.as_reader()
-    return self.CS.out, ret_arne182.as_reader()
+    return self.CS.out
 
   def apply(self, c):
     can_sends = self.CC.update(c.enabled, self.CS, self.frame, c.actuators,
