@@ -101,6 +101,7 @@ class RadarD():
     self.current_time = 1e-9*max(sm.logMonoTime.values())
 
     if sm.updated['controlsState']:
+      self.active = sm['controlsState'].active
       self.v_ego = sm['controlsState'].vEgo
       self.v_ego_hist.append(self.v_ego)
     if sm.updated['model']:
