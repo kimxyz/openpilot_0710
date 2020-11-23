@@ -38,31 +38,33 @@ class CarInterface(CarInterfaceBase):
     tire_stiffness_factor = 0.85
 
     #Long tuning Params -  make individual params for cars, baseline Hyundai genesis
-    ret.longitudinalTuning.kpBP = [0., 8., 16., 30.] #0, 30, 60, 110km/h
-    ret.longitudinalTuning.kpV = [0.12, 1.3, .85, .65]
-    ret.longitudinalTuning.kiBP = [0., 15., 35.]
-    ret.longitudinalTuning.kiV = [.35, .25, .15]
+    #ret.longitudinalTuning.kpBP = [0., 1., 10., 35.]
+    ret.longitudinalTuning.kpBP = [0., 4., 8., 16., 30.] #0, 15, 30, 60, 110km/h
+    #ret.longitudinalTuning.kpV = [0.12, 1.3, .85, .65]
+    ret.longitudinalTuning.kpV = [0.1, 1.0, 0.9, 0.7, 0.5]
+    #ret.longitudinalTuning.kiBP = [0., 15., 35.]
+    ret.longitudinalTuning.kiBP = [0., 4., 8., 16., 30.] #0, 15, 30, 60, 110km/h
+    #ret.longitudinalTuning.kiV = [.35, .25, .15]
+    ret.longitudinalTuning.kiV = [0.3, 0.25, 0.23, 0.2, 0.17]
     ret.longitudinalTuning.deadzoneBP = [0., .5]
     ret.longitudinalTuning.deadzoneV = [0.00, 0.00]
     ret.gasMaxBP = [0., 1., 1.1, 15., 40.]
-    ret.gasMaxV = [2., 2., 2., 1.68, 1.3]
+    ret.gasMaxV = [1.5, 2., 2., 1.5, 1.2]
     ret.brakeMaxBP = [0., 5., 5.1]
-    ret.brakeMaxV = [3.5, 3.5, 3.5]  # safety limits to stop unintended deceleration
+    ret.brakeMaxV = [3.3, 3.4, 3.5]  # safety limits to stop unintended deceleration
 
-    ret.longitudinalTuning.kpBP = [0., 10., 40.]
-    ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
-    ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
-    ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
-    ret.longitudinalTuning.deadzoneBP = [0., 40]
-    ret.longitudinalTuning.deadzoneV = [0., 0.02]
+    #ret.longitudinalTuning.kpBP = [0., 10., 40.]
+    #ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
+    #ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
+    #ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
+    #ret.longitudinalTuning.deadzoneBP = [0., 40]
+    #ret.longitudinalTuning.deadzoneV = [0., 0.02]
 
     # steer, gas, brake limitations VS speed
-    ret.steerMaxBP = [0.]
-    ret.steerMaxV = [1.0]
-    ret.gasMaxBP = [0., 10., 40.]
-    ret.gasMaxV = [0.5, 0.5, 0.5]
-    ret.brakeMaxBP = [0., 20.]
-    ret.brakeMaxV = [1., 0.8]
+    #ret.gasMaxBP = [0., 8., 16., 30.]
+    #ret.gasMaxV = [0.5, 0.5, 0.5, 0.5]
+    #ret.brakeMaxBP = [0., 3., 6., 8., 17.]
+    #ret.brakeMaxV = [3.4, 3.5, 3.6, 3.7, 3.8]
     
 
     #ret.lateralTuning.pid.kpBP = [0., 10., 30.]
