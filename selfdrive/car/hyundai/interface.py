@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from cereal import car
+from cereal import car, arne182
 from common.op_params import opParams
 from common.params import Params
 from selfdrive.config import Conversions as CV
@@ -38,7 +38,7 @@ class CarInterface(CarInterfaceBase):
     tire_stiffness_factor = 0.85
 
     #Long tuning Params -  make individual params for cars, baseline Hyundai genesis
-    ret.longitudinalTuning.kpBP = [0., 1., 10., 35.]
+    ret.longitudinalTuning.kpBP = [0., 8., 16., 30.] #0, 30, 60, 110km/h
     ret.longitudinalTuning.kpV = [0.12, 1.3, .85, .65]
     ret.longitudinalTuning.kiBP = [0., 15., 35.]
     ret.longitudinalTuning.kiV = [.35, .25, .15]
@@ -49,11 +49,29 @@ class CarInterface(CarInterfaceBase):
     ret.brakeMaxBP = [0., 5., 5.1]
     ret.brakeMaxV = [3.5, 3.5, 3.5]  # safety limits to stop unintended deceleration
 
+    ret.longitudinalTuning.kpBP = [0., 10., 40.]
+    ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
+    ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
+    ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
+    ret.longitudinalTuning.deadzoneBP = [0., 40]
+    ret.longitudinalTuning.deadzoneV = [0., 0.02]
+
+    # steer, gas, brake limitations VS speed
+    ret.steerMaxBP = [0.]
+    ret.steerMaxV = [1.0]
+    ret.gasMaxBP = [0., 10., 40.]
+    ret.gasMaxV = [0.5, 0.5, 0.5]
+    ret.brakeMaxBP = [0., 20.]
+    ret.brakeMaxV = [1., 0.8]
+    
+
     #ret.lateralTuning.pid.kpBP = [0., 10., 30.]
     #ret.lateralTuning.pid.kpV = [0.01, 0.02, 0.03]
     #ret.lateralTuning.pid.kiBP = [0., 10., 30.]
     #ret.lateralTuning.pid.kiV = [0.001, 0.0015, 0.002]
     #ret.lateralTuning.pid.kf = 0.00005
+    #ret.lateralTuning.pid.kfBP = [0., 10., 30.]
+    #ret.lateralTuning.pid.kfV = [0.000015, 0.00002, 0.000025]
     #ret.lateralTuning.pid.kdBP, ret.lateralTuning.pid.kdV = [[0.], [0.]]
     ret.lateralTuning.init('lqr')
     ret.lateralTuning.lqr.scale = 1500
@@ -238,14 +256,14 @@ class CarInterface(CarInterfaceBase):
     self.cp.update_strings(can_strings)
     self.cp2.update_strings(can_strings)
     self.cp_cam.update_strings(can_strings)
+    ret_arne182 = arne182.CarStateArne182.new_message()
     ret = self.CS.update(self.cp, self.cp2, self.cp_cam)
     ret.canValid = self.cp.can_valid and self.cp2.can_valid and self.cp_cam.can_valid
-    
-    events = self.create_common_events(ret)
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
+    events, events_arne182 = self.create_common_events(ret)
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo > (self.CP.minSteerSpeed + .84) or not self.CC.enabled:
@@ -308,8 +326,11 @@ class CarInterface(CarInterfaceBase):
           events.add(EventName.pcmDisable)
 
     ret.events = events.to_msg()
+
+    ret_arne182.events = events_arne182.to_msg()
+
     self.CS.out = ret.as_reader()
-    return self.CS.out
+    return self.CS.out, ret_arne182.as_reader()
 
   def apply(self, c):
     can_sends = self.CC.update(c.enabled, self.CS, self.frame, c.actuators,
