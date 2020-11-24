@@ -41,15 +41,15 @@ class CarInterface(CarInterfaceBase):
     #ret.longitudinalTuning.kpBP = [0., 1., 10., 35.]
     ret.longitudinalTuning.kpBP = [0., 4., 8., 16., 30.] #0, 15, 30, 60, 110km/h
     #ret.longitudinalTuning.kpV = [0.12, 1.3, .85, .65]
-    ret.longitudinalTuning.kpV = [0.1, 1.0, 0.9, 0.7, 0.5]
+    ret.longitudinalTuning.kpV = [1.1, 2.0, 1.9, 1.7, 1.5]
     #ret.longitudinalTuning.kiBP = [0., 15., 35.]
     ret.longitudinalTuning.kiBP = [0., 4., 8., 16., 30.] #0, 15, 30, 60, 110km/h
     #ret.longitudinalTuning.kiV = [.35, .25, .15]
-    ret.longitudinalTuning.kiV = [0.3, 0.25, 0.23, 0.2, 0.17]
+    ret.longitudinalTuning.kiV = [1.3, 1.25, 1.23, 1.2, 1.17]
     ret.longitudinalTuning.deadzoneBP = [0., .5]
     ret.longitudinalTuning.deadzoneV = [0.00, 0.00]
     ret.gasMaxBP = [0., 1., 1.1, 15., 40.]
-    ret.gasMaxV = [1.5, 2., 2., 1.5, 1.2]
+    ret.gasMaxV = [2.5, 3., 3., 2.5, 2.2]
     ret.brakeMaxBP = [0., 5., 5.1]
     ret.brakeMaxV = [3.3, 3.4, 3.5]  # safety limits to stop unintended deceleration
 
